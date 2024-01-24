@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Bug Smasher</title>
+    <style>
+      body
+      {
+        background-image: url(bugbackground.jpeg);
+      }
+      canvas {
+        border: 1px solid black;
+        background: url('bg.jpg');
+        background-size: cover;
+      }
+      button
+      {
+        border: 1px solid red;
+        background-color: white;
+        border-radius: 5px;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-weight: bolder;
+      }
+      button:hover
+      {
+        background-color: red;
+        color: white;
+      }
+      .box
+      {
+          box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+      }
+    </style>
+  </head>
+  <body style="text-align: center;">
+    <h1 style="color:white;">Bug Smasher</h1>
+    <canvas id="canvas" width="400" height="400" class="box"></canvas>
+    <h2 style="color:white;">Score: <span id="score">0</span></h2>
+    <button id="resetScore">Reset Score</button>
+    <button id="resetSpeed">Reset Speed</button>
+    <script>
+      
+      // Initialize the canvas
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+
+      // Set the bug size and initial speed
+      let bugSize = 60;
+      let bugSpeed = 2000;
+      const bugImg = new Image();
+      bugImg.src = 'bug.png';
+
+      // Set the score to zero
+      let score = 0;
+
+      // Declare variable to store event listener
+      let clickListener = null;
+
+      // Draw the bug at a random location
+      function drawBug() {
+        // Clear the canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw the bug
+        ctx.fillStyle = 'transparent';
+        ctx.beginPath();
+        const x = Math.floor(Math.random() * (canvas.width - bugSize));
+        const y = Math.floor(Math.random() * (canvas.height - bugSize));
+        ctx.arc(x, y, bugSize / 2, 0, 2 * Math.PI);
+        ctx.drawImage(bugImg, x-20, y-20, 60, 50);
+        ctx.fill();
+
+        // Remove the event listener if it exists
+        if (clickListener) {
+          canvas.removeEventListener('click', clickListener);
+        }
+
+        // Add event listener to canvas element to increase score when bug is clicked
+        clickListener = function(event) {
+          const rect = canvas.getBoundingClientRect();
+          const mouseX = event.clientX - rect.left;
+          const mouseY = event.clientY - rect.top;
+          if (Math.sqrt((x - mouseX) ** 2 + (y - mouseY) ** 2) <= bugSize / 2) {
+            smashBug();
+          }
+        };
+        canvas.addEventListener('click', clickListener);
+        
+        // Set a timeout to draw the bug again after a random interval
+        setTimeout(drawBug, bugSpeed);
+      }
+
+      // Increment the score and decrease the bug speed
+      function smashBug() {
+        score++;
+        bugSpeed -= 50;
+        if (bugSpeed < 50) {
+          bugSpeed = 50;
+        }
+        document.getElementById('score').textContent = score;
+      }
+
+      // Reset the score and bug speed to their initial values
+      function resetScore() {
+        score = 0;
+        bugSpeed = 2000;
+        document.getElementById('score').textContent = score;
+      }
+
+      // Add event listeners to the buttons
+      document.getElementById('resetScore').addEventListener('click', resetScore);
+      document.getElementById('resetSpeed').addEventListener('click', () => {
+       
+      bugSpeed = 2000;
+      });
+
+      // Start the game
+      drawBug();
+
+    </script>
+  </body>
+</html>
